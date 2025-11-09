@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { getProfile, updateProfile } from '@/lib/supabase/queries';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 type Profile = {
   fullName: string;
