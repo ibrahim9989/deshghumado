@@ -6,6 +6,7 @@ import { getTourBySlug, Tour, createBooking, getProfile } from '@/lib/supabase/q
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { Calendar, Users, CreditCard, FileText } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function BookTourPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
