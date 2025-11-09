@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { getAllBookings, getAllEnquiries, getProfile, updateBookingStatus, updateEnquiryStatus, Booking, Enquiry } from '@/lib/supabase/queries';
-import { Calendar, Mail, DollarSign, Users, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar, Mail, DollarSign, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 

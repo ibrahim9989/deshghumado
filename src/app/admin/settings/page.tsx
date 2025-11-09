@@ -105,7 +105,7 @@ export default function AdminSettingsPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Visa Assistance</h3>
-                    <p className="text-gray-600 text-sm">We'll help you with visa application</p>
+                    <p className="text-gray-600 text-sm">We&apos;ll help you with visa application</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-500 mb-1">Price per person</p>
@@ -176,7 +176,7 @@ export default function AdminSettingsPage() {
                 <input type="checkbox" className="w-5 h-5 text-pink-600" />
                 <div className="flex-1">
                   <p className="font-medium">Visa Assistance</p>
-                  <p className="text-sm text-gray-600">We'll help you with visa application</p>
+                  <p className="text-sm text-gray-600">We&apos;ll help you with visa application</p>
                 </div>
                 <p className="font-bold text-pink-600">+₹{settings.default_visa_fee.toLocaleString('en-IN')}/person</p>
               </label>
