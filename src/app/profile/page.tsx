@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { getProfile, updateProfile } from '@/lib/supabase/queries';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Profile = {
   fullName: string;
@@ -59,6 +60,7 @@ export default function ProfilePage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        toast.error('Please sign in to continue');
         router.push('/');
         return;
       }
@@ -77,6 +79,26 @@ export default function ProfilePage() {
           diet: profile.dietary_preferences || '',
           medical: profile.medical_conditions || '',
         });
+        
+        // If profile is already completed, check if we should redirect
+        if (profile.profile_completed) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnTo = urlParams.get('returnTo');
+          const intendedDestination = sessionStorage.getItem('intendedDestination');
+          
+          // User already has a completed profile, redirect them appropriately
+          if (returnTo) {
+            sessionStorage.removeItem('intendedDestination');
+            toast.success('Profile already completed!');
+            router.push(returnTo);
+            return;
+          } else if (intendedDestination) {
+            sessionStorage.removeItem('intendedDestination');
+            toast.success('Profile already completed!');
+            router.push(intendedDestination);
+            return;
+          }
+        }
       }
       
       setLoading(false);
@@ -107,7 +129,21 @@ export default function ProfilePage() {
 
     if (success) {
       toast.success('Profile saved successfully!');
-      router.push('/');
+      
+      // Check for returnTo parameter or sessionStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnTo = urlParams.get('returnTo');
+      const intendedDestination = sessionStorage.getItem('intendedDestination');
+      
+      if (returnTo) {
+        sessionStorage.removeItem('intendedDestination');
+        router.push(returnTo);
+      } else if (intendedDestination) {
+        sessionStorage.removeItem('intendedDestination');
+        router.push(intendedDestination);
+      } else {
+        router.push('/');
+      }
     } else {
       toast.error('Failed to save profile. Please try again.');
     }
@@ -127,11 +163,29 @@ export default function ProfilePage() {
     );
   }
 
+  // Check if user is in a booking flow
+  const isInBookingFlow = typeof window !== 'undefined' && (
+    sessionStorage.getItem('intendedDestination')?.includes('/book/') ||
+    new URLSearchParams(window.location.search).get('returnTo')?.includes('/book/')
+  );
+
   return (
     <main className="min-h-screen px-6 lg:px-16 pt-24 pb-20 bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-5xl mx-auto">
+        {isInBookingFlow && (
+          <div className="mb-6 bg-pink-50 border border-pink-200 rounded-2xl p-4 flex items-start gap-3">
+            <span className="text-2xl">📝</span>
+            <div>
+              <h3 className="font-bold text-pink-900 mb-1">One more step before booking!</h3>
+              <p className="text-pink-800 text-sm">We need some essential information to ensure your journey is safe and comfortable. This is a one-time process.</p>
+            </div>
+          </div>
+        )}
+        
         <header className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold">Complete your profile</h1>
+          <h1 className="text-4xl md:text-5xl font-bold">
+            {isInBookingFlow ? 'Complete your profile to book' : 'Complete your profile'}
+          </h1>
           <p className="text-gray-600 mt-2">Share essential details so we can plan safe, comfortable journeys for you. All fields marked with <span className="text-red-500">*</span> are required.</p>
         </header>
 

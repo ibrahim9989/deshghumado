@@ -2,20 +2,19 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTourBySlug, Tour, createBooking, getProfile } from '@/lib/supabase/queries';
-import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { Calendar, Users, CreditCard, FileText } from 'lucide-react';
+import { getTourBySlug, Tour, createBooking } from '@/lib/supabase/queries';
+import { Users, FileText } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import AuthGuard from '@/components/AuthGuard';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function BookTourPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
+function BookTourContent({ slug }: { slug: string }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [profileComplete, setProfileComplete] = useState(false);
   const [visaFee, setVisaFee] = useState(9000);
   const [insuranceFee, setInsuranceFee] = useState(5000);
 
@@ -40,26 +39,7 @@ export default function BookTourPage({ params }: { params: Promise<{ slug: strin
 
   useEffect(() => {
     async function init() {
-      // Check auth
-      const supabase = createSupabaseBrowser();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error('Please sign in to book a tour');
-        router.push('/');
-        return;
-      }
-
-      setUserId(user.id);
-
-      // Check profile completion
-      const profile = await getProfile(user.id);
-      if (!profile?.profile_completed) {
-        toast.error('Please complete your profile before booking');
-        router.push('/profile');
-        return;
-      }
-      setProfileComplete(true);
+      if (!user) return;
 
       // Fetch tour
       const tourData = await getTourBySlug(slug);
@@ -79,7 +59,7 @@ export default function BookTourPage({ params }: { params: Promise<{ slug: strin
       setLoading(false);
     }
     init();
-  }, [slug, router]);
+  }, [slug, router, user]);
 
   const handleTravelerCountChange = (count: number) => {
     const newCount = Math.max(1, Math.min(count, tour?.max_group_size || 15));
@@ -106,7 +86,7 @@ export default function BookTourPage({ params }: { params: Promise<{ slug: strin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId || !tour) return;
+    if (!user || !tour) return;
 
     // Validate traveler names
     const allNamesFilled = form.travelerNames.every(name => name.trim().length > 0);
@@ -121,7 +101,7 @@ export default function BookTourPage({ params }: { params: Promise<{ slug: strin
     const depositAmount = Math.round(totalAmount * 0.3); // 30% deposit
 
     const bookingId = await createBooking({
-      user_id: userId,
+      user_id: user.id,
       tour_id: tour.id,
       num_travelers: form.numTravelers,
       traveler_names: form.travelerNames,
@@ -141,228 +121,249 @@ export default function BookTourPage({ params }: { params: Promise<{ slug: strin
 
     setSubmitting(false);
 
-    if (bookingId) {
-      toast.success(
-        `Booking created! ID: ${bookingId}. Deposit: ₹${depositAmount.toLocaleString('en-IN')}. We'll contact you shortly with payment details.`,
-        { duration: 6000 }
-      );
-      router.push('/');
-    } else {
-      toast.error('Failed to create booking. Please try again or contact us.');
+    if (!bookingId) {
+      toast.error('Failed to create booking. Please try again.');
+      return;
     }
+
+    toast.success('Booking created! Redirecting to payment...');
+    
+    // In a real app, redirect to payment gateway
+    setTimeout(() => {
+      router.push(`/my-bookings`);
+    }, 1500);
   };
 
   if (loading) {
     return (
-      <main className="min-h-screen pt-24 px-6 lg:px-16 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-12 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading tour details...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
-  if (!tour) return null;
-
-  const totalAmount = calculateTotal();
-  const depositAmount = Math.round(totalAmount * 0.3);
+  if (!tour) {
+    return null;
+  }
 
   return (
-    <main className="min-h-screen pt-24 px-6 lg:px-16 pb-20 bg-gradient-to-b from-white to-gray-50">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-5xl mx-auto px-6">
         {/* Header */}
         <div className="mb-8">
-          <Link href={`/packages/${tour.slug}`} className="text-pink-600 hover:underline mb-2 inline-block">
-            ← Back to tour details
+          <Link href={`/packages/${slug}`} className="text-orange-600 hover:underline mb-4 inline-block">
+            ← Back to Tour Details
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">Book Your Tour</h1>
-          <p className="text-gray-600 text-lg">{tour.destination}, {tour.country}</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Book Your Adventure</h1>
+          <p className="text-xl text-gray-700">{tour.name}</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Booking Form */}
-          <form onSubmit={handleSubmit} className="md:col-span-2 space-y-6">
-            {/* Number of Travelers */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-3 mb-4">
-                <Users className="w-6 h-6 text-pink-600" />
-                <h2 className="text-xl font-bold">Number of Travelers</h2>
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Number of Travelers */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  <Users className="inline w-5 h-5 mr-2" />
+                  Number of Travelers
+                </label>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleTravelerCountChange(form.numTravelers - 1)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="text-2xl font-bold w-12 text-center">{form.numTravelers}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleTravelerCountChange(form.numTravelers + 1)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-bold"
+                  >
+                    +
+                  </button>
+                  <span className="text-sm text-gray-500 ml-4">
+                    (Max: {tour.max_group_size})
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleTravelerCountChange(form.numTravelers - 1)}
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 font-bold"
-                >
-                  -
-                </button>
-                <span className="text-2xl font-bold w-12 text-center">{form.numTravelers}</span>
-                <button
-                  type="button"
-                  onClick={() => handleTravelerCountChange(form.numTravelers + 1)}
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 font-bold"
-                >
-                  +
-                </button>
-                <span className="text-gray-600 text-sm ml-4">
-                  (Max: {tour.max_group_size})
-                </span>
-              </div>
-            </div>
 
-            {/* Traveler Names */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-3 mb-4">
-                <FileText className="w-6 h-6 text-pink-600" />
-                <h2 className="text-xl font-bold">Traveler Details</h2>
-              </div>
-              <div className="space-y-3">
-                {form.travelerNames.map((name, index) => (
-                  <div key={index}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Traveler {index + 1} (Full Name as per Passport)
-                    </label>
+              {/* Traveler Names */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Traveler Details
+                </label>
+                <div className="space-y-3">
+                  {form.travelerNames.map((name, index) => (
                     <input
+                      key={index}
                       type="text"
+                      placeholder={`Traveler ${index + 1} Full Name (as per passport)`}
                       value={name}
                       onChange={(e) => handleTravelerNameChange(index, e.target.value)}
-                      placeholder="e.g., Vishnu Saha"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Add-ons */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-xl font-bold mb-4">Add-ons</h2>
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.visaApplied}
-                    onChange={(e) => setForm({ ...form, visaApplied: e.target.checked })}
-                    className="w-5 h-5 text-pink-600"
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">Visa Assistance</p>
-                    <p className="text-sm text-gray-600">We'll help you with visa application</p>
-                  </div>
-                  <p className="font-bold text-pink-600">+₹{visaFee.toLocaleString('en-IN')}/person</p>
-                </label>
-
-                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.insuranceApplied}
-                    onChange={(e) => setForm({ ...form, insuranceApplied: e.target.checked })}
-                    className="w-5 h-5 text-pink-600"
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">Travel Insurance</p>
-                    <p className="text-sm text-gray-600">Comprehensive coverage up to ₹5L</p>
-                  </div>
-                  <p className="font-bold text-pink-600">+₹{insuranceFee.toLocaleString('en-IN')}/person</p>
-                </label>
-              </div>
-            </div>
-
-            {/* Special Requests */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-xl font-bold mb-4">Additional Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Dietary Requirements
-                  </label>
-                  <input
-                    type="text"
-                    value={form.dietaryRequirements}
-                    onChange={(e) => setForm({ ...form, dietaryRequirements: e.target.value })}
-                    placeholder="e.g., Vegetarian, Vegan, Allergies"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Special Requests (Optional)
-                  </label>
-                  <textarea
-                    value={form.specialRequests}
-                    onChange={(e) => setForm({ ...form, specialRequests: e.target.value })}
-                    placeholder="Any special requirements or requests..."
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  />
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className={`w-full px-8 py-4 rounded-full text-white font-bold text-lg bg-gradient-to-r from-pink-500 to-purple-600 hover:shadow-xl transition-all ${
-                submitting ? 'opacity-60 cursor-not-allowed' : ''
-              }`}
-            >
-              {submitting ? 'Processing...' : 'Confirm Booking'}
-            </button>
-          </form>
+              {/* Add-Ons */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Optional Add-Ons
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-start p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={form.visaApplied}
+                      onChange={(e) => setForm({ ...form, visaApplied: e.target.checked })}
+                      className="mt-1 mr-3"
+                    />
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">Visa Assistance</div>
+                      <div className="text-sm text-gray-600">
+                        We will handle your visa application and documentation
+                      </div>
+                      <div className="text-orange-600 font-bold mt-1">
+                        ₹{visaFee.toLocaleString()} per person
+                      </div>
+                    </div>
+                  </label>
 
-          {/* Price Summary */}
-          <aside className="md:col-span-1">
-            <div className="sticky top-24 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-xl font-bold mb-4">Price Summary</h3>
+                  <label className="flex items-start p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={form.insuranceApplied}
+                      onChange={(e) => setForm({ ...form, insuranceApplied: e.target.checked })}
+                      className="mt-1 mr-3"
+                    />
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">Travel Insurance</div>
+                      <div className="text-sm text-gray-600">
+                        Comprehensive coverage for medical emergencies and trip cancellations
+                      </div>
+                      <div className="text-orange-600 font-bold mt-1">
+                        ₹{insuranceFee.toLocaleString()} per person
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Dietary Requirements */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Dietary Requirements (Optional)
+                </label>
+                <textarea
+                  value={form.dietaryRequirements}
+                  onChange={(e) => setForm({ ...form, dietaryRequirements: e.target.value })}
+                  placeholder="Any food allergies or special dietary needs?"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  rows={3}
+                />
+              </div>
+
+              {/* Special Requests */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  <FileText className="inline w-5 h-5 mr-2" />
+                  Special Requests (Optional)
+                </label>
+                <textarea
+                  value={form.specialRequests}
+                  onChange={(e) => setForm({ ...form, specialRequests: e.target.value })}
+                  placeholder="Any special requests or requirements for your trip?"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  rows={4}
+                />
+              </div>
+
+              {/* Terms */}
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <p className="text-sm text-gray-700">
+                  By proceeding, you agree to our{' '}
+                  <Link href="/terms" className="text-orange-600 hover:underline font-semibold">
+                    Terms & Conditions
+                  </Link>
+                  . A 30% deposit is required to confirm your booking.
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-4 rounded-lg font-bold text-lg hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Processing...' : 'Proceed to Payment'}
+              </button>
+            </form>
+          </div>
+
+          {/* Payment Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Payment Summary</h3>
               
-              <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
+              <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-gray-700">
-                  <span>Tour Price × {form.numTravelers}</span>
-                  <span>₹{(tour.price_inr * form.numTravelers).toLocaleString('en-IN')}</span>
+                  <span>Tour Price (×{form.numTravelers})</span>
+                  <span>₹{(tour.price_inr * form.numTravelers).toLocaleString()}</span>
                 </div>
+                
                 {form.visaApplied && (
                   <div className="flex justify-between text-gray-700">
-                    <span>Visa × {form.numTravelers}</span>
-                    <span>₹{(visaFee * form.numTravelers).toLocaleString('en-IN')}</span>
+                    <span>Visa (×{form.numTravelers})</span>
+                    <span>₹{(visaFee * form.numTravelers).toLocaleString()}</span>
                   </div>
                 )}
+                
                 {form.insuranceApplied && (
                   <div className="flex justify-between text-gray-700">
-                    <span>Insurance × {form.numTravelers}</span>
-                    <span>₹{(insuranceFee * form.numTravelers).toLocaleString('en-IN')}</span>
+                    <span>Insurance (×{form.numTravelers})</span>
+                    <span>₹{(insuranceFee * form.numTravelers).toLocaleString()}</span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-2 mb-6">
-                <div className="flex justify-between text-lg font-bold">
+              <div className="border-t pt-4 mb-6">
+                <div className="flex justify-between text-lg font-bold text-gray-900 mb-2">
                   <span>Total Amount</span>
-                  <span className="text-pink-600">₹{totalAmount.toLocaleString('en-IN')}</span>
+                  <span>₹{calculateTotal().toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-orange-600 font-semibold">
                   <span>Deposit (30%)</span>
-                  <span className="font-semibold">₹{depositAmount.toLocaleString('en-IN')}</span>
+                  <span>₹{Math.round(calculateTotal() * 0.3).toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="bg-pink-50 rounded-xl p-4 text-sm text-gray-700">
-                <p className="font-medium mb-2">📌 Payment Terms:</p>
-                <ul className="space-y-1 text-xs">
-                  <li>• 30% deposit required to confirm</li>
-                  <li>• Balance due 15 days before departure</li>
-                  <li>• Secure payment link will be sent via email</li>
-                </ul>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>✓ Secure payment processing</p>
+                <p>✓ Instant booking confirmation</p>
+                <p>✓ 24/7 customer support</p>
               </div>
             </div>
-          </aside>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
+export default function BookTourPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  
+  return (
+    <AuthGuard requireAuth={true} requireProfile={true}>
+      <BookTourContent slug={slug} />
+    </AuthGuard>
+  );
+}

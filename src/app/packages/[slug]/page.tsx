@@ -3,6 +3,7 @@ import Image from 'next/image';
 import ItineraryTimeline from '@/components/ItineraryTimeline';
 import { Calendar, Users, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import BookNowButton from '@/components/BookNowButton';
 
 export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -218,12 +219,13 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               {/* CTA Buttons */}
               <div className="space-y-3">
                 {tour.status === 'booking_open' && (
-                  <Link
-                    href={`/book/${tour.slug}`}
-                    className="block w-full text-center px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold hover:shadow-xl transition-all"
+                  <BookNowButton
+                    slug={tour.slug}
+                    tourStatus={tour.status}
+                    className="block w-full text-center px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Book Now
-                  </Link>
+                  </BookNowButton>
                 )}
                 <Link
                   href="/contact"

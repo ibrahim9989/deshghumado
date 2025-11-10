@@ -65,3 +65,5 @@ export default function VisaAndInsurance({ country = 'Singapore' }: VisaProps) {
     </section>
   );
 }
+
+

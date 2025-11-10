@@ -224,3 +224,5 @@ SELECT 'Setup complete!' as status;
 SELECT 'Total profiles:' as info, COUNT(*) as count FROM profiles;
 SELECT 'Total tours:' as info, COUNT(*) as count FROM tours;
 
+
+

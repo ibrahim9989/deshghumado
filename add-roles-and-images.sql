@@ -226,3 +226,5 @@ FROM tours WHERE slug = 'egypt-feb';
 SELECT 'Tour images inserted:' as status, COUNT(*) as count FROM tour_images;
 SELECT 'Profiles with roles:' as status, COUNT(*) as count FROM profiles;
 
+
+

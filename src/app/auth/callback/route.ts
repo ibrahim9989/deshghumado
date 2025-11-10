@@ -3,16 +3,27 @@ import { createSupabaseServer } from '@/lib/supabase/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') || '/';
+  const returnTo = searchParams.get('returnTo') || '/';
 
   if (code) {
     const supabase = createSupabaseServer();
     try {
       await supabase.auth.exchangeCodeForSession(code);
     } catch (e) {
-      // ignore to avoid leaking details in response
+      console.error('Auth callback error:', e);
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `${origin}/?error=auth_failed` },
+      });
     }
   }
 
-  return new Response(null, { status: 302, headers: { Location: next } });
+  // Redirect to auth/redirect handler with returnTo parameter
+  return new Response(null, {
+    status: 302,
+    headers: { 
+      Location: `${origin}/auth/redirect?returnTo=${encodeURIComponent(returnTo)}` 
+    },
+  });
 }
+

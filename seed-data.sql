@@ -352,3 +352,5 @@ SELECT 'Itineraries inserted:' as status, COUNT(*) as count FROM itinerary;
 SELECT 'Visa requirements inserted:' as status, COUNT(*) as count FROM visa_requirements;
 SELECT 'Insurance packages inserted:' as status, COUNT(*) as count FROM insurance_packages;
 
+
+

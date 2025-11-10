@@ -55,3 +55,5 @@ CREATE POLICY "Enable delete for authenticated users"
 
 SELECT 'Admin insert policies added!' as status;
 
+
+

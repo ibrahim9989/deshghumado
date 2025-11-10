@@ -78,3 +78,5 @@ DROP POLICY IF EXISTS "Admins can delete reviews" ON reviews;
 
 SELECT 'RLS policies fixed!' as status;
 
+
+

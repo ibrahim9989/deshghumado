@@ -40,3 +40,5 @@ ON CONFLICT (id) DO NOTHING;
 -- Verify profiles were created
 SELECT 'Profiles created/fixed:' as status, COUNT(*) as count FROM profiles;
 
+
+

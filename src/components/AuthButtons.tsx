@@ -1,45 +1,36 @@
 "use client";
 
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
-import type { User } from '@supabase/supabase-js';
+import { useAuth } from '@/contexts/AuthContext';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AuthButtons() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowser();
-    
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, profile, loading } = useAuth();
+  const router = useRouter();
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowser();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${location.origin}/auth/callback?returnTo=${encodeURIComponent(location.pathname)}`,
         queryParams: { prompt: 'select_account' },
       },
     });
+
+    if (error) {
+      toast.error('Failed to sign in');
+      console.error('Sign in error:', error);
+    }
   };
 
   const handleSignOut = async () => {
     const supabase = createSupabaseBrowser();
     await supabase.auth.signOut();
-    window.location.href = '/';
+    toast.success('Signed out successfully');
+    router.push('/');
   };
 
   if (loading) {
@@ -53,9 +44,19 @@ export default function AuthButtons() {
   if (user) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-white/90 text-sm hidden md:inline">
-          {user.email}
-        </span>
+        {profile?.full_name && (
+          <Link 
+            href="/profile"
+            className="text-white/90 text-sm hidden md:inline hover:text-white transition-colors"
+          >
+            {profile.full_name}
+          </Link>
+        )}
+        {!profile?.full_name && user.email && (
+          <span className="text-white/90 text-sm hidden md:inline">
+            {user.email.split('@')[0]}
+          </span>
+        )}
         <button 
           onClick={handleSignOut} 
           className="px-4 py-2 rounded-full bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
