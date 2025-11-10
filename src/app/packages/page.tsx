@@ -1,4 +1,4 @@
-import ToursSection from '@/components/ToursSection';
+import ToursSectionDB from '@/components/ToursSectionDB';
 
 export default function PackagesPage() {
   return (
@@ -9,7 +9,7 @@ export default function PackagesPage() {
           <p className="text-gray-600">Curated and led by Vishnu Saha</p>
         </div>
       </section>
-      <ToursSection />
+      <ToursSectionDB />
     </main>
   );
 }

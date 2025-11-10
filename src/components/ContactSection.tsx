@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { createEnquiry } from '@/lib/supabase/queries';
+import { useState, useEffect } from 'react';
+import { createEnquiry, getAllTours, Tour } from '@/lib/supabase/queries';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 
@@ -9,6 +9,23 @@ export default function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', tour: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [loadingTours, setLoadingTours] = useState(true);
+
+  // Fetch tours for dropdown
+  useEffect(() => {
+    async function fetchTours() {
+      try {
+        const data = await getAllTours();
+        setTours(data);
+      } catch (error) {
+        console.error('Error fetching tours:', error);
+      } finally {
+        setLoadingTours(false);
+      }
+    }
+    fetchTours();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +39,17 @@ export default function ContactSection() {
     const supabase = createSupabaseBrowser();
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Find tour ID if a tour was selected
+    const selectedTour = tours.find(t => t.id === form.tour);
+    const tourId = selectedTour ? selectedTour.id : null;
+
     const success = await createEnquiry({
       user_id: user?.id || null,
       name: form.name,
       email: form.email,
       phone: form.phone || null,
-      subject: form.tour ? `Tour Inquiry: ${form.tour}` : 'General Inquiry',
+      tour_id: tourId,
+      subject: selectedTour ? `Tour Inquiry: ${selectedTour.destination}` : 'General Inquiry',
       message: form.message,
       status: 'new',
     });
@@ -62,15 +84,22 @@ export default function ContactSection() {
               <input value={form.name} onChange={(e)=>setForm({...form, name:e.target.value})} placeholder="Full Name" className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500" />
               <input type="email" value={form.email} onChange={(e)=>setForm({...form, email:e.target.value})} placeholder="Email" className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500" />
               <input value={form.phone} onChange={(e)=>setForm({...form, phone:e.target.value})} placeholder="Phone (optional)" className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500" />
-              <select value={form.tour} onChange={(e)=>setForm({...form, tour:e.target.value})} className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500">
-                <option value="">Select Tour</option>
-                <option>China — Nov 14</option>
-                <option>Philippines — Dec 28</option>
-                <option>Dubai — Dec 28</option>
-                <option>Japan — Jan (TBD)</option>
-                <option>Kenya — Jan (TBD)</option>
-                <option>Russia — Feb (TBD)</option>
-                <option>Egypt — Feb (TBD)</option>
+              <select 
+                value={form.tour} 
+                onChange={(e)=>setForm({...form, tour:e.target.value})} 
+                disabled={loadingTours}
+                className="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">{loadingTours ? 'Loading tours...' : 'Select Tour (Optional)'}</option>
+                {tours.map((tour) => {
+                  const startDate = new Date(tour.start_date);
+                  const dateStr = startDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                  return (
+                    <option key={tour.id} value={tour.id}>
+                      {tour.destination}, {tour.country} — {dateStr}
+                    </option>
+                  );
+                })}
               </select>
               <textarea value={form.message} onChange={(e)=>setForm({...form, message:e.target.value})} placeholder="Your message" className="md:col-span-2 min-h-[140px] px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-500" />
               <div className="md:col-span-2 flex justify-end">

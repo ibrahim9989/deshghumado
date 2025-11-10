@@ -8,52 +8,18 @@ export default function Footer() {
     { name: 'Packages', href: '/packages' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact Us', href: '/contact' },
+    { name: 'My Bookings', href: '/my-bookings' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms & Conditions', href: '/terms' },
-  ];
-
-  const mustVisit = [
-    'Egypt',
-    'Georgia',
-    'Kenya',
-    'Turkey',
-    'Azerbaijan',
-    'Tanzania',
-  ];
-
-  const popular = [
-    'Thailand',
-    'Singapore',
-    'Malaysia',
-    'Maldives',
-    'Mauritius',
-    'Vietnam',
-    'Bhutan',
-    'Jordan',
-    'Sri Lanka',
-    'Greece',
-  ];
-
-  const honeymoonPackages = [
-    'Maldives Sea Adventure',
-    'Sacred Sands Bali',
-    'Greek Signature Escape',
-    'Moonlit Mauritius',
-    'Classic Thailand Highlights',
-    'Singapore Uncovered',
-    'Mystic Malaysia',
-    'Timeless Vietnam Voyage',
-    'Majestic Sights of Turkey',
-    'Georgian Trails',
   ];
 
   return (
     <footer className="bg-gray-900 text-white">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-16 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           {/* Brand Section */}
-          <div className="lg:col-span-1">
+          <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xl">D</span>
@@ -102,69 +68,17 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-bold mb-6">Quick Links</h4>
-            <ul className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               {quickLinks.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-gray-400 hover:text-pink-400 transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  {link.name}
+                </a>
               ))}
-            </ul>
-          </div>
-
-          {/* Must Visit */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Must Visit</h4>
-            <ul className="space-y-3">
-              {mustVisit.map((destination) => (
-                <li key={destination}>
-                  <a
-                    href="#"
-                    className="text-gray-400 hover:text-pink-400 transition-colors"
-                  >
-                    {destination}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Popular */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Popular</h4>
-            <ul className="space-y-3">
-              {popular.map((destination) => (
-                <li key={destination}>
-                  <a
-                    href="#"
-                    className="text-gray-400 hover:text-pink-400 transition-colors"
-                  >
-                    {destination}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Honeymoon Packages */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Honeymoon Packages</h4>
-            <ul className="space-y-3">
-              {honeymoonPackages.slice(0, 6).map((pkg) => (
-                <li key={pkg}>
-                  <a
-                    href="#"
-                    className="text-gray-400 hover:text-pink-400 transition-colors text-sm"
-                  >
-                    {pkg}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
         </div>
 
