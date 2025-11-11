@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { buildOAuthCallbackUrl } from '@/lib/utils/url';
+import { getSiteUrl } from '@/lib/auth-utils';
 
 export default function AuthButtons() {
   const { user, profile, loading } = useAuth();
@@ -13,10 +13,19 @@ export default function AuthButtons() {
 
   const handleSignIn = async () => {
     const supabase = createSupabaseBrowser();
+    const returnTo = typeof window !== 'undefined' ? window.location.pathname : '/';
+    const siteUrl = getSiteUrl();
+    const redirectUrl = `${siteUrl}/auth/callback?returnTo=${encodeURIComponent(returnTo)}`;
+    
+    // Debug logging
+    console.log('[AuthButtons] Redirect URL:', redirectUrl);
+    console.log('[AuthButtons] Site URL:', siteUrl);
+    console.log('[AuthButtons] Current origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A');
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: buildOAuthCallbackUrl(typeof window !== 'undefined' ? window.location.pathname : '/'),
+        redirectTo: redirectUrl,
         queryParams: { prompt: 'select_account' },
       },
     });

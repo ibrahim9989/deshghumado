@@ -54,13 +54,9 @@ git push -u origin main
    NEXT_PUBLIC_SUPABASE_URL=https://ekognpwosomaizvucvdo.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrb2ducHdvc29tYWl6dnVjdmRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MDM1MjUsImV4cCI6MjA3ODE3OTUyNX0.fQHhA5BwEUJI9-0v5kqYSSYRymdJlaS4wcX33T8JOlM
    SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrb2ducHdvc29tYWl6dnVjdmRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjYwMzUyNSwiZXhwIjoyMDc4MTc5NTI1fQ.e-wbFWrK3HI-5M5gF26opGIyPSidb05Yy9TyIGzbGpc
-   NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
    ```
 
-   **Important**: 
-   - Add these to all environments (Production, Preview, Development)
-   - Replace `https://your-app.vercel.app` with your actual Vercel domain
-   - The `NEXT_PUBLIC_SITE_URL` ensures OAuth redirects work correctly in production
+   **Important**: Add these to all environments (Production, Preview, Development)
 
 5. Click **Deploy**
 
@@ -89,7 +85,6 @@ vercel
 vercel env add NEXT_PUBLIC_SUPABASE_URL
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel env add SUPABASE_SERVICE_ROLE_KEY
-vercel env add NEXT_PUBLIC_SITE_URL
 
 # Deploy to production
 vercel --prod
@@ -164,7 +159,6 @@ Update your Supabase project settings:
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ Yes |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public) | ✅ Yes |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret) | ✅ Yes |
-| `NEXT_PUBLIC_SITE_URL` | Your production site URL (e.g., https://your-app.vercel.app) | ✅ Yes |
 
 **⚠️ SECURITY WARNING**: 
 - Never commit `.env.local` to Git
@@ -190,15 +184,12 @@ npm run build
 - Check variable names are exactly correct (case-sensitive)
 - Redeploy after adding variables
 
-### Google Sign-in Not Working / Redirects to localhost
+### Google Sign-in Not Working
 
-**Issue**: OAuth redirect fails or redirects to localhost:3000
-- **CRITICAL**: Set `NEXT_PUBLIC_SITE_URL` environment variable to your production URL
+**Issue**: OAuth redirect fails
 - Verify Supabase redirect URLs include your Vercel domain
-- Check Supabase Site URL is set to your production domain (not localhost)
 - Check Google OAuth authorized redirect URIs
 - Ensure `auth/callback` route exists
-- Redeploy after updating environment variables
 
 ### Images Not Loading
 

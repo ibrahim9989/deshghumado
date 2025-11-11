@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { getProfile } from '@/lib/supabase/queries';
 import toast from 'react-hot-toast';
+import { getSiteUrl } from '@/lib/auth-utils';
 
 interface AuthState {
   isLoading: boolean;
@@ -97,7 +98,7 @@ export function useAuth() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getSiteUrl()}/auth/callback`,
       },
     });
 

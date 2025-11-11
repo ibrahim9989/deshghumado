@@ -242,19 +242,79 @@ export async function getVisaRequirements(tourId: string): Promise<VisaRequireme
 // ============================================
 
 export async function getProfile(userId: string): Promise<Profile | null> {
-  const supabase = createSupabaseBrowser();
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  const startTime = Date.now();
+  console.log('[getProfile] ===== START =====');
+  console.log('[getProfile] Fetching profile for userId:', userId);
+  
+  try {
+    const supabase = createSupabaseBrowser();
+    console.log('[getProfile] Supabase client created');
+    
+    console.log('[getProfile] Executing query...');
+    
+    // Use maybeSingle() instead of single() to handle missing profiles gracefully
+    // Add timeout by wrapping in Promise.race
+    const queryPromise = supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Profile query timeout after 10 seconds')), 10000)
+    );
+    
+    const { data, error } = await Promise.race([
+      queryPromise,
+      timeoutPromise
+    ]) as any;
 
-  if (error) {
-    console.error('Error fetching profile:', error);
+    const elapsed = Date.now() - startTime;
+    console.log('[getProfile] Query completed in', elapsed, 'ms');
+
+    if (error) {
+      console.error('[getProfile] ===== ERROR =====');
+      console.error('[getProfile] Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        status: error.status
+      });
+      console.error('[getProfile] =================');
+      return null;
+    }
+
+    if (!data) {
+      console.log('[getProfile] ===== NO PROFILE FOUND =====');
+      console.log('[getProfile] Profile does not exist for userId:', userId);
+      console.log('[getProfile] This is normal for new users');
+      return null;
+    }
+
+    console.log('[getProfile] ===== SUCCESS =====');
+    console.log('[getProfile] Profile data:', {
+      hasData: !!data,
+      id: data?.id,
+      email: data?.email,
+      fullName: data?.full_name,
+      profileCompleted: data?.profile_completed,
+      role: data?.role
+    });
+    console.log('[getProfile] ===================');
+    
+    return data;
+  } catch (error) {
+    const elapsed = Date.now() - startTime;
+    console.error('[getProfile] ===== EXCEPTION =====');
+    console.error('[getProfile] Exception after', elapsed, 'ms:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    console.error('[getProfile] ====================');
     return null;
   }
-
-  return data;
 }
 
 export async function updateProfile(userId: string, updates: Partial<Profile>): Promise<boolean> {

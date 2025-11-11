@@ -1,6 +1,27 @@
 import { createSupabaseBrowser } from './supabase/client';
 import { getProfile } from './supabase/queries';
-import { buildOAuthCallbackUrl } from './utils/url';
+
+/**
+ * Get the site URL for redirects (uses env var in production, window.location.origin in dev)
+ */
+export function getSiteUrl(): string {
+  // In server-side or build time, use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3008';
+  }
+  
+  // In client-side, prefer env var but fallback to window.location.origin
+  // Note: NEXT_PUBLIC_ vars are embedded at build time, so they should be available
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const currentOrigin = window.location.origin;
+  
+  // Debug logging (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[getSiteUrl] envUrl:', envUrl, 'currentOrigin:', currentOrigin);
+  }
+  
+  return envUrl || currentOrigin;
+}
 
 export interface AuthCheckResult {
   isAuthenticated: boolean;
@@ -101,7 +122,7 @@ export async function initiateGoogleSignIn(intendedDestination?: string) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: buildOAuthCallbackUrl(),
+      redirectTo: `${getSiteUrl()}/auth/callback`,
     },
   });
   
