@@ -228,3 +228,4 @@ SELECT 'Profiles with roles:' as status, COUNT(*) as count FROM profiles;
 
 
 
+

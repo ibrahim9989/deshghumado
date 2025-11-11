@@ -5,6 +5,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { buildOAuthCallbackUrl } from '@/lib/utils/url';
 
 interface BookNowButtonProps {
   slug: string;
@@ -36,7 +37,7 @@ export default function BookNowButton({ slug, tourStatus, className, children }:
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?returnTo=${encodeURIComponent(returnTo)}`,
+            redirectTo: buildOAuthCallbackUrl(returnTo),
             queryParams: { prompt: 'select_account' },
           },
         });

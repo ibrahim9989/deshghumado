@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { getProfile } from '@/lib/supabase/queries';
 import toast from 'react-hot-toast';
+import { buildOAuthCallbackUrl } from '@/lib/utils/url';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -53,7 +54,7 @@ export default function AuthGuard({
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
+            redirectTo: buildOAuthCallbackUrl(),
           },
         });
         

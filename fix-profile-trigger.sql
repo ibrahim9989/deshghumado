@@ -42,3 +42,4 @@ SELECT 'Profiles created/fixed:' as status, COUNT(*) as count FROM profiles;
 
 
 
+

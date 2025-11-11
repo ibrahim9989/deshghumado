@@ -1,5 +1,6 @@
 import { createSupabaseBrowser } from './supabase/client';
 import { getProfile } from './supabase/queries';
+import { buildOAuthCallbackUrl } from './utils/url';
 
 export interface AuthCheckResult {
   isAuthenticated: boolean;
@@ -100,7 +101,7 @@ export async function initiateGoogleSignIn(intendedDestination?: string) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: buildOAuthCallbackUrl(),
     },
   });
   

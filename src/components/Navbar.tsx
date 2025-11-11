@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { usePathname } from 'next/navigation';
+import { buildOAuthCallbackUrl } from '@/lib/utils/url';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,7 +58,7 @@ export default function Navbar() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?returnTo=${encodeURIComponent(window.location.pathname)}`,
+        redirectTo: buildOAuthCallbackUrl(window.location.pathname),
         queryParams: { prompt: 'select_account' },
       },
     });

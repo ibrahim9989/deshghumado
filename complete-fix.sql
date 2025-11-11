@@ -226,3 +226,4 @@ SELECT 'Total tours:' as info, COUNT(*) as count FROM tours;
 
 
 
+
