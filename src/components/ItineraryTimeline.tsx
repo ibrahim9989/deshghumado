@@ -15,38 +15,57 @@ export default function ItineraryTimeline({ title = 'Itinerary', subtitle, items
         <h2 className="text-3xl md:text-4xl font-bold mb-2">{title}</h2>
         {subtitle && <p className="text-gray-600 mb-6">{subtitle}</p>}
 
-        <div className="rounded-2xl border border-gray-200 overflow-hidden">
-          {/* header bar */}
-          <div className="px-6 py-4 bg-gradient-to-r from-pink-50 to-purple-50 border-b border-gray-200">
-            <p className="text-sm text-gray-600">Day-by-day plan curated by Vishnu</p>
-          </div>
-
+        <div className="space-y-6">
           {items.map((it, idx) => (
-            <div key={idx} className={`grid grid-cols-[88px_1fr] gap-4 px-6 ${idx !== items.length - 1 ? 'border-b border-gray-100' : ''} bg-white`}>
-              {/* day column */}
-              <div className="py-6 flex flex-col items-center justify-center">
-                <span className="text-xs text-gray-500">Day</span>
-                <span className="text-3xl font-bold text-gray-900">{String(it.day).padStart(2, '0')}</span>
-              </div>
-              {/* card */}
-              <div className="py-4">
-                <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-                  <div className="p-5 flex gap-4 items-start">
-                    {/* thumbnail or icon blob */}
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center overflow-hidden shrink-0">
-                      {it.photo ? (
-                        <Image src={it.photo} alt={it.title} width={56} height={56} className="object-cover w-14 h-14 rounded-xl" />
-                      ) : (
-                        <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+            <div key={idx} className="relative">
+              {/* Timeline Line */}
+              {idx !== items.length - 1 && (
+                <div className="absolute left-8 top-20 bottom-0 w-0.5 bg-gradient-to-b from-pink-300 to-purple-300"></div>
+              )}
+              
+              <div className="relative flex gap-6">
+                {/* Day Number Circle */}
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg border-4 border-white relative z-10">
+                    <span className="text-white font-bold text-xl">{it.day}</span>
+                  </div>
+                </div>
+
+                {/* Content Card */}
+                <div className="flex-1 pb-6">
+                  <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all overflow-hidden group">
+                    {/* Image Section */}
+                    {it.photo ? (
+                      <div className="relative h-64 overflow-hidden">
+                        <Image 
+                          src={it.photo} 
+                          alt={it.title} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                          <h3 className="text-2xl font-bold mb-2">{it.title}</h3>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-6 border-b border-gray-100">
+                        <h3 className="text-2xl font-bold text-gray-900">{it.title}</h3>
+                      </div>
+                    )}
+
+                    {/* Details Section */}
+                    <div className="p-6">
+                      {it.notes && (
+                        <p className="text-gray-700 leading-relaxed mb-4">{it.notes}</p>
                       )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{it.title}</h3>
-                      {it.notes && <p className="text-gray-600 text-sm leading-relaxed">{it.notes}</p>}
                       {it.inclusions && it.inclusions.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {it.inclusions.map((inc, i) => (
-                            <span key={i} className="px-3 py-1 rounded-full bg-gradient-to-r from-pink-50 to-purple-50 text-pink-700 border border-pink-100 text-xs font-medium">
+                            <span 
+                              key={i} 
+                              className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-50 to-purple-50 text-pink-700 border border-pink-200 text-sm font-medium hover:from-pink-100 hover:to-purple-100 transition-colors"
+                            >
                               {inc}
                             </span>
                           ))}
@@ -63,6 +82,8 @@ export default function ItineraryTimeline({ title = 'Itinerary', subtitle, items
     </section>
   );
 }
+
+
 
 
 

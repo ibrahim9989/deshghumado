@@ -41,14 +41,14 @@ export default function HeroSection() {
           {/* Main Headline */}
           <div className="text-center max-w-4xl">
             <h2 className="text-white text-5xl md:text-7xl font-bold mb-8 leading-tight tracking-tight">
-              Desh Ghumo with
+              Explore the World with
               <br />
               <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                Wandering Maniac
+                DeshGhumado
               </span>
             </h2>
             <p className="text-white/90 text-xl md:text-2xl font-light mb-4">
-              Led by Vishnu Saha - Wandering Maniac
+              Authentic Travel Experiences
             </p>
             <p className="text-white/80 text-lg md:text-xl font-light mb-6">
               80+ Countries Explored | 849K+ Subscribers

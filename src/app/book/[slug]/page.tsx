@@ -84,6 +84,16 @@ function BookTourContent({ slug }: { slug: string }) {
     return total;
   };
 
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !tour) return;
@@ -100,6 +110,7 @@ function BookTourContent({ slug }: { slug: string }) {
     const totalAmount = calculateTotal();
     const depositAmount = Math.round(totalAmount * 0.3); // 30% deposit
 
+    // Create booking first
     const bookingId = await createBooking({
       user_id: user.id,
       tour_id: tour.id,
@@ -119,19 +130,97 @@ function BookTourContent({ slug }: { slug: string }) {
       status: 'pending',
     });
 
-    setSubmitting(false);
-
     if (!bookingId) {
+      setSubmitting(false);
       toast.error('Failed to create booking. Please try again.');
       return;
     }
 
-    toast.success('Booking created! Redirecting to payment...');
-    
-    // In a real app, redirect to payment gateway
-    setTimeout(() => {
-      router.push(`/my-bookings`);
-    }, 1500);
+    // Load Razorpay script
+    const razorpayLoaded = await loadRazorpay();
+    if (!razorpayLoaded) {
+      setSubmitting(false);
+      toast.error('Failed to load payment gateway. Please try again.');
+      return;
+    }
+
+    try {
+      // Create Razorpay order
+      const response = await fetch('/api/razorpay/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingId,
+          amount: depositAmount,
+          currency: 'INR',
+        }),
+      });
+
+      const orderData = await response.json();
+
+      if (!response.ok || !orderData.orderId) {
+        console.error('[Payment] Order creation failed:', orderData);
+        throw new Error(orderData.error || orderData.details || 'Failed to create payment order');
+      }
+
+      // Initialize Razorpay checkout
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'DeshGhumado',
+        description: `Booking deposit for ${tour.destination}`,
+        order_id: orderData.orderId,
+        handler: async function (response: any) {
+          // Verify payment on server
+          const verifyResponse = await fetch('/api/razorpay/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingId,
+            }),
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyResponse.ok && verifyData.success) {
+            // Redirect to success page
+            router.push(`/payment/success?bookingId=${bookingId}&paymentId=${response.razorpay_payment_id}`);
+          } else {
+            // Redirect to failure page
+            router.push(`/payment/failure?bookingId=${bookingId}&error=${encodeURIComponent(verifyData.error || 'Payment verification failed')}`);
+          }
+        },
+        prefill: {
+          name: user.email?.split('@')[0] || '',
+          email: user.email || '',
+        },
+        theme: {
+          color: '#ec4899',
+        },
+        modal: {
+          ondismiss: function() {
+            setSubmitting(false);
+            toast.error('Payment cancelled');
+          },
+        },
+      };
+
+      const razorpay = (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (error: any) {
+      console.error('[Payment] Payment error:', error);
+      setSubmitting(false);
+      const errorMessage = error.message || 'Failed to initiate payment. Please try again.';
+      toast.error(errorMessage);
+    }
   };
 
   if (loading) {

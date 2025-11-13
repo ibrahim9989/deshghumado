@@ -2,7 +2,42 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ installed
+- A Supabase project (create one at [supabase.com](https://supabase.com))
+- Google OAuth credentials (see [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md) for detailed instructions)
+
+### Setup
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   - Create a `.env.local` file in the root directory
+   - Add your Supabase credentials:
+     ```env
+     NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+     NEXT_PUBLIC_SITE_URL=http://localhost:3000
+     ```
+   - Add Razorpay credentials:
+     ```env
+     RAZORPAY_KEY_ID=rzp_live_ReRt29vMOOk9Wj
+     RAZORPAY_KEY_SECRET=R4krUJxoL2RsBVyUAqnkOu8l
+     RAZORPAY_WEBHOOK_SECRET=bEgz_vpPSs9x3th
+     NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_ReRt29vMOOk9Wj
+     ```
+   - See [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md) for complete setup instructions
+   - See [RAZORPAY_SETUP.md](./RAZORPAY_SETUP.md) for payment integration details
+
+3. **Configure Google OAuth:**
+   - Follow the detailed guide in [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md)
+   - This includes setting up Google Cloud Console and configuring Supabase
+
+4. **Run the development server:**
 
 ```bash
 npm run dev

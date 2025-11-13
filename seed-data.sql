@@ -355,3 +355,5 @@ SELECT 'Insurance packages inserted:' as status, COUNT(*) as count FROM insuranc
 
 
 
+
+

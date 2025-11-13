@@ -338,6 +338,14 @@ export async function updateProfile(userId: string, updates: Partial<Profile>): 
 
 export async function createBooking(booking: Partial<Booking>): Promise<string | null> {
   const supabase = createSupabaseBrowser();
+  
+  // Generate booking reference if not provided
+  if (!booking.booking_reference) {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    booking.booking_reference = `DG-${timestamp}-${random}`;
+  }
+
   const { data, error } = await supabase
     .from('bookings')
     .insert([booking])

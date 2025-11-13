@@ -82,55 +82,27 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
           {/* Left Column - Details */}
           <div className="md:col-span-2 space-y-8">
-            {/* About */}
-            <div>
-              <h2 className="text-3xl font-bold mb-4">About this tour</h2>
-              <p className="text-gray-700 text-lg leading-relaxed">{tour.description || tour.title}</p>
-            </div>
-
-            {/* Highlights */}
+            {/* Key Highlights - Moved to Top */}
             {tour.highlights && tour.highlights.length > 0 && (
               <div>
-                <h3 className="text-2xl font-bold mb-4">Highlights</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <h2 className="text-3xl font-bold mb-6">Key Highlights</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {tour.highlights.map((h, i) => (
-                    <div key={i} className="flex items-start gap-3 bg-pink-50 p-4 rounded-xl">
-                      <CheckCircle className="w-5 h-5 text-pink-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-800">{h}</span>
+                    <div key={i} className="flex items-start gap-3 bg-gradient-to-br from-pink-50 to-purple-50 p-5 rounded-xl border border-pink-100 hover:shadow-md transition-shadow">
+                      <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="text-gray-800 font-medium">{h}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Inclusions & Exclusions */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {tour.inclusions && tour.inclusions.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-green-600">✅ What's Included</h3>
-                  <ul className="space-y-2">
-                    {tour.inclusions.map((item, i) => (
-                      <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-green-500 mt-1">•</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {tour.exclusions && tour.exclusions.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-red-600">❌ What's Not Included</h3>
-                  <ul className="space-y-2">
-                    {tour.exclusions.map((item, i) => (
-                      <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-red-500 mt-1">•</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            {/* About */}
+            <div>
+              <h2 className="text-3xl font-bold mb-4">About this tour</h2>
+              <p className="text-gray-700 text-lg leading-relaxed">{tour.description || tour.title}</p>
             </div>
 
             {/* Do's & Don'ts */}
@@ -181,6 +153,42 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 </div>
               </div>
             )}
+
+            {/* Inclusions & Exclusions - Moved to Bottom */}
+            <div className="grid md:grid-cols-2 gap-6 pt-8 border-t border-gray-200">
+              {tour.inclusions && tour.inclusions.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-green-600 flex items-center gap-2">
+                    <CheckCircle className="w-6 h-6" />
+                    What's Included
+                  </h3>
+                  <ul className="space-y-3">
+                    {tour.inclusions.map((item, i) => (
+                      <li key={i} className="text-gray-700 flex items-start gap-3 bg-green-50 p-3 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {tour.exclusions && tour.exclusions.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-red-600 flex items-center gap-2">
+                    <XCircle className="w-6 h-6" />
+                    What's Not Included
+                  </h3>
+                  <ul className="space-y-3">
+                    {tour.exclusions.map((item, i) => (
+                      <li key={i} className="text-gray-700 flex items-start gap-3 bg-red-50 p-3 rounded-lg">
+                        <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Column - Booking Card */}

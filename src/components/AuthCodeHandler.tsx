@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 /**
  * Handles auth code parameter if Supabase redirects to root instead of /auth/callback
  * This is a fallback in case Supabase configuration redirects to the wrong URL
  */
-export default function AuthCodeHandler() {
+function AuthCodeHandlerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -33,4 +33,14 @@ export default function AuthCodeHandler() {
 
   return null; // This component doesn't render anything
 }
+
+export default function AuthCodeHandler() {
+  return (
+    <Suspense fallback={null}>
+      <AuthCodeHandlerContent />
+    </Suspense>
+  );
+}
+
+
 

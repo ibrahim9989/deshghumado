@@ -15,23 +15,17 @@ export default function AuthButtons() {
     const supabase = createSupabaseBrowser();
     const returnTo = typeof window !== 'undefined' ? window.location.pathname : '/';
     const siteUrl = getSiteUrl();
-    const redirectUrl = `${siteUrl}/auth/callback?returnTo=${encodeURIComponent(returnTo)}`;
-    
-    // Debug logging
-    console.log('[AuthButtons] Redirect URL:', redirectUrl);
-    console.log('[AuthButtons] Site URL:', siteUrl);
-    console.log('[AuthButtons] Current origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A');
+    const redirectUrl = `${siteUrl}/auth/callback?next=${encodeURIComponent(returnTo)}`;
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
-        queryParams: { prompt: 'select_account' },
       },
     });
 
     if (error) {
-      toast.error('Failed to sign in');
+      toast.error('Failed to sign in: ' + error.message);
       console.error('Sign in error:', error);
     }
   };

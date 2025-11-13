@@ -26,14 +26,13 @@ export default function Footer() {
               </div>
               <div>
                 <h3 className="text-xl font-bold">DeshGhumado</h3>
-                <p className="text-pink-300 text-xs">by Wandering Maniac</p>
               </div>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
               Holidays For Global Indians
             </p>
             <p className="text-gray-400 text-sm mb-6">
-              Created by a Traveller, for Travellers. Experience the world beyond guidebooks with Vishnu Saha.
+              Created by a Traveller, for Travellers. Experience the world beyond guidebooks with DeshGhumado.
             </p>
             
             {/* Social Media */}

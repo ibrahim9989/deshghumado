@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DeshGhumado - Travel with Wandering Maniac",
-  description: "Join Vishnu Saha on unforgettable journeys across the globe",
+  title: "DeshGhumado - Authentic Travel Experiences",
+  description: "Discover unforgettable journeys across the globe with DeshGhumado",
 };
 
 export default function RootLayout({

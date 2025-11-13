@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Users, MapPin, ArrowRight, X } from 'lucide-react';
+import { Calendar, Users, MapPin, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { getAllTours, Tour } from '@/lib/supabase/queries';
@@ -11,7 +11,6 @@ export default function ToursSectionDB() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'soon'>('all');
-  const [activeTour, setActiveTour] = useState<Tour | null>(null);
 
   // Fetch tours from Supabase
   useEffect(() => {
@@ -84,13 +83,13 @@ export default function ToursSectionDB() {
       {/* Section Header */}
       <div className="max-w-7xl mx-auto mb-16 text-center">
         <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-          Current Tours with{' '}
+          Our{' '}
           <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-            Wandering Maniac
+            Popular Tours
           </span>
         </h2>
         <p className="text-gray-600 text-lg">
-          Join Vishnu Saha on unforgettable journeys across the globe
+          Discover unforgettable journeys across the globe with DeshGhumado
         </p>
       </div>
 
@@ -159,6 +158,7 @@ export default function ToursSectionDB() {
                   src={tour.image_url || '/placeholder.jpg'}
                   alt={tour.destination}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
                 />
                 <div className="absolute top-4 left-4 text-5xl">{tour.flag_emoji}</div>
@@ -234,12 +234,12 @@ export default function ToursSectionDB() {
                     <p className="text-xs text-gray-500">per person</p>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => setActiveTour(tour)}
+                    <Link
+                      href={`/packages/${tour.slug}`}
                       className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                     >
                       Details
-                    </button>
+                    </Link>
                     {tour.status === 'booking_open' ? (
                       <Link
                         href={`/packages/${tour.slug}`}
@@ -277,62 +277,11 @@ export default function ToursSectionDB() {
         </div>
       )}
 
-      {/* Details Modal */}
-      {activeTour && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8 relative">
-            <button
-              onClick={() => setActiveTour(null)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <h3 className="text-3xl font-bold mb-4">{activeTour.destination}</h3>
-            <p className="text-gray-600 mb-6">{activeTour.description}</p>
-
-            {/* Do's & Don'ts */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-bold text-green-600 mb-3 flex items-center gap-2">
-                  <span className="text-2xl">✅</span> Do's
-                </h4>
-                <ul className="space-y-2">
-                  {activeTour.dos?.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="text-green-500 mt-1">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2">
-                  <span className="text-2xl">❌</span> Don'ts
-                </h4>
-                <ul className="space-y-2">
-                  {activeTour.donts?.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="text-red-500 mt-1">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <Link
-              href={`/packages/${activeTour.slug}`}
-              className="mt-6 w-full block text-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
-            >
-              View Full Details
-            </Link>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
+
+
 
 
 

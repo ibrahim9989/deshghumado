@@ -44,14 +44,15 @@ export default function AboutSection() {
             <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
               <Image
                 src="https://yt3.googleusercontent.com/XkAvPwKysWsRyfC5OxUOSZFutUwciDVurFFV6RCgjoUzsr6Rcul_hr4NDJat28mp82y3yr-TWg=s900-c-k-c0x00ffffff-no-rj"
-                alt="Vishnu Saha - The Wandering Maniac"
+                alt="DeshGhumado Travel Experiences"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-8 left-8 text-white">
-                <h3 className="text-3xl font-bold mb-2">Vishnu Saha</h3>
-                <p className="text-xl text-pink-300">Wandering Maniac</p>
+                <h3 className="text-3xl font-bold mb-2">DeshGhumado</h3>
+                <p className="text-xl text-pink-300">Travel Experiences</p>
               </div>
             </div>
             {/* Floating Badge */}
@@ -70,7 +71,7 @@ export default function AboutSection() {
               </span>
             </h2>
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              DeshGhumado was founded by <strong>Vishnu Saha</strong>, a world globetrotter who has journeyed 
+              DeshGhumado was founded by passionate travelers who have journeyed 
               across <strong>80+ countries</strong>, exploring some of the most remote and fascinating corners 
               of the planet.
             </p>
@@ -80,8 +81,8 @@ export default function AboutSection() {
             </p>
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
               At DeshGhumado, we believe travel should be <strong>raw, real, and unforgettable</strong>. 
-              Our group tours are personally curated and led by Vishnu himself, ensuring every journey 
-              captures the soul of a destination.
+              Our group tours are carefully curated, with select tours led by experienced trip captains or 
+              special guest hosts, ensuring every journey captures the soul of a destination.
             </p>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">
               From hidden villages and offbeat cultures to authentic local encounters, we take you where 
@@ -90,9 +91,14 @@ export default function AboutSection() {
 
             {/* CTA Button */}
             <div>
-              <button className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all">
-                Watch Vishnu's Journey
-              </button>
+              <a 
+                href="https://www.youtube.com/@WanderingManiac" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all"
+              >
+                Watch Our Travel Stories
+              </a>
             </div>
           </div>
         </div>
@@ -123,7 +129,7 @@ export default function AboutSection() {
               </span>
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Vishnu has explored some of the world's most challenging and misunderstood destinations, 
+              We've explored some of the world's most challenging and misunderstood destinations, 
               bringing raw and authentic stories from places others fear to go.
             </p>
           </div>
@@ -138,6 +144,7 @@ export default function AboutSection() {
                   src={adventure.image}
                   alt={adventure.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

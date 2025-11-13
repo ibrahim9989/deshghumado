@@ -8,7 +8,7 @@ const testimonials = [
   {
     name: 'Aarav Mehta',
     text:
-      'China with Vishnu felt raw and real. Local markets, street food, hidden alleys — nothing like typical package tours.',
+      'China with DeshGhumado felt raw and real. Local markets, street food, hidden alleys — nothing like typical package tours.',
     avatar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=400',
     tour: 'China — Nov',
     rating: 5,
@@ -16,7 +16,7 @@ const testimonials = [
   {
     name: 'Sara Thomas',
     text:
-      'The group vibe was amazing. I loved how Vishnu connected us with locals and culture in a respectful way.',
+      'The group vibe was amazing. I loved how our trip captain connected us with locals and culture in a respectful way.',
     avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=400',
     tour: 'Dubai — Dec',
     rating: 5,
@@ -51,7 +51,7 @@ export default function TestimonialsSection() {
           Travellers on{' '}
           <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">DeshGhumado</span>
         </h2>
-        <p className="text-gray-600 mt-3">Real stories from journeys led by Vishnu Saha</p>
+        <p className="text-gray-600 mt-3">Real stories from our travelers</p>
       </div>
 
       <div className="relative max-w-4xl mx-auto h-[420px] md:h-[460px]">
@@ -62,7 +62,7 @@ export default function TestimonialsSection() {
           >
             <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 flex flex-col items-center gap-6">
               <div className="relative w-20 h-20">
-                <Image src={t.avatar} alt={t.name} fill className="rounded-full object-cover" />
+                <Image src={t.avatar} alt={t.name} fill sizes="80px" className="rounded-full object-cover" />
               </div>
               <div className="flex gap-1 text-yellow-400">
                 {Array.from({ length: t.rating }).map((_, k) => (

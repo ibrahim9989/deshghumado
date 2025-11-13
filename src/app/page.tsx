@@ -1,4 +1,5 @@
 import HeroSection from '@/components/HeroSection';
+import PopularToursSection from '@/components/PopularToursSection';
 import ToursSectionDB from '@/components/ToursSectionDB';
 import AboutSection from '@/components/AboutSection';
 import ContactSection from '@/components/ContactSection';
@@ -13,6 +14,7 @@ export default function Home() {
       <AuthCodeHandler />
       <HeroSection />
       <MediaStrip />
+      <PopularToursSection />
       <ToursSectionDB />
       <AboutSection />
       <ContactSection />
